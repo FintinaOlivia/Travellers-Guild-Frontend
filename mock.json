@@ -1,0 +1,11 @@
+{
+    "characters": [
+      {
+        "id": "2",
+        "name": "Elizabeth Bennet",
+        "age": "19",
+        "iconicLines": "You are too hasty, sir.",
+        "creator": "Jane Austen"
+      }
+    ]
+}
