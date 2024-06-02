@@ -57,7 +57,6 @@ export function GenreDetails(){
     
       // eslint-disable-next-line eqeqeq
     const genre = useSelector(state => state.genres.genres.find(char => char.genreID == id));
-    console.log(useSelector(state => state.genres));
     
     if (!genre) {
     return <div>Currently fetching genre, hang on tight!</div>;

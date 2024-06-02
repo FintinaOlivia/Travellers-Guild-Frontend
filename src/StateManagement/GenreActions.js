@@ -41,6 +41,7 @@ export const fetchGenreRequest = () => ({
   });
   
   export const fetchGenre = (id) => {
+    console.log("Fetching genre with id:", id, typeof id);
     return async (dispatch) => {
   
       dispatch(fetchGenreRequest());
@@ -52,10 +53,12 @@ export const fetchGenreRequest = () => ({
         }
         const data = await response.json();
         dispatch(fetchGenreSuccess(data));
+        console.log(data)
   
       } catch (error) {
         dispatch(fetchGenreFailure(error.message));
       }
+      
     };
   };
   

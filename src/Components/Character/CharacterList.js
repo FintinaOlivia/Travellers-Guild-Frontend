@@ -9,20 +9,23 @@ import { Typography, Button, Dialog, DialogTitle, DialogContent, DialogActions, 
 import DeleteOutlinedIcon from '@mui/icons-material/DeleteOutlined';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 
+
+
 export function CharacterList() {
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
     const [selectedCharacterId, setSelectedCharacterId] = useState(null);
+    const [filteredCharacters, setFilteredCharacters] = useState([]);
 
     // eslint-disable-next-line no-unused-vars
     const [genreMap, setGenreMap] = useState({});
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const characters = useSelector(state => state.characters.characters);
+    var characters = useSelector(state => state.characters.characters);
     
     const loading = useSelector(state => state.characters.loading);
     const hasMore = useSelector(state => state.characters.hasMore);
     const pageRef = useRef(1);
-    const nrElementsPerPage = 10;
+    const nrElementsPerPage = 25;
 
     useEffect(() => {
         dispatch(fetchCharacters(pageRef.current));
@@ -68,7 +71,7 @@ export function CharacterList() {
             const scrollHeight = document.documentElement.scrollHeight;
             const clientHeight = document.documentElement.clientHeight;
         
-            if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
+            if (scrollTop + clientHeight >= scrollHeight - 500 && !loading) {
                 console.log("Fetching more characters...");
                 pageRef.current += 1;
                 dispatch(fetchCharacters(pageRef.current, nrElementsPerPage));
@@ -85,17 +88,25 @@ export function CharacterList() {
         navigate(`/characters/${params}`);
     };
 
-    const handleKeyDown = (event) => {
-        if (event.key === 'Enter') {
-            characters.filter(character => {
-                if (character.characterName.toLowerCase().includes(event.target.value.toLowerCase())) {
-                    navigate(`/characters/${character.id}`);
-                    return true;
+    const handleKeyDown = async (event) => {
+        if (event.key === 'Shift') {
+            (async () => {
+                try {
+                    const response = await fetch(`http://localhost:8082/characters/name/${event.target.value}`);
+                    if(!response.ok) {
+                        console.log("It's okay, it means it didn't find characters in the database!");
+                    }
+
+                    const filteredCharacters = await response.json();
+                    setFilteredCharacters(filteredCharacters);
+                } catch (error) {
+                    console.error('Error fetching filtered characters:', error);
                 }
-                return false;
-            });
+            })();
         }
     }
+
+    characters = filteredCharacters.length > 0 ? filteredCharacters : characters;
 
     return (
         <>

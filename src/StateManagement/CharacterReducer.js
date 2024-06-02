@@ -25,10 +25,13 @@ import {
 } from './CharacterActions';
 import { SET_FORM_VALIDATION_ERROR
 } from './CharacterActions';
+import { SET_PAGE_NUMBER } 
+from './CharacterActions';
 
 const initialState = {
   characters: [], 
   formValidationError: null,
+  pageRef: 1
 };
 
 const characterReducer = (state = initialState, action) => {
@@ -144,6 +147,11 @@ const characterReducer = (state = initialState, action) => {
           ...state,
           loading: false,
           error: action.payload
+        };
+      case SET_PAGE_NUMBER:
+        return {
+          ...state,
+          pageRef: action.payload
         };
       
       default:

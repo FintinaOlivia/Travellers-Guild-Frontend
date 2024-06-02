@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
@@ -11,6 +11,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 export function GenreList() {
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
     const [selectedGenreId, setSelectedGenreId] = useState(null);
+    const genres = useSelector(state => state.genres.genres);
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -25,15 +26,6 @@ export function GenreList() {
         dispatch(fetchCharacters());
     }, [dispatch]);
 
-    const genres = useSelector(state => (
-        state.genres.genres.map(genre => ({
-            ...genre,
-            id: genre.genreID 
-        }))
-    ));
-    const memoizedGenres = useMemo(() => genres, [genres]);
-  
-
     useEffect(() => {
         const handleScroll = () => {
             console.log("Scrolled!");
@@ -41,11 +33,7 @@ export function GenreList() {
             const scrollHeight = document.documentElement.scrollHeight;
             const clientHeight = document.documentElement.clientHeight;
 
-            console.log("Scroll Top:", scrollTop);
-            console.log("Scroll Height:", scrollHeight);
-            console.log("Client Height:", clientHeight);
-
-            if (scrollTop + clientHeight >= scrollHeight - 5 && !loading) {
+            if (scrollTop + clientHeight >= scrollHeight - 500 && !loading) {
                 console.log("Fetching more genres...");
                 pageRef.current += 1;
                 dispatch(fetchGenres(pageRef.current, nrElementsPerPage));
@@ -58,7 +46,6 @@ export function GenreList() {
         };
     }, [loading, hasMore, dispatch, nrElementsPerPage]);
     
-    console.log("Genres:", genres);
 
     const handleDeleteConfirmation = (id) => {
         setSelectedGenreId(id);
@@ -75,18 +62,21 @@ export function GenreList() {
     };
 
     const handleCardDoubleClick = (params) => {
-        navigate(`/genres/${params.id}`);
+        navigate(`/genres/${params.genreID}`);
     };
 
     const handleKeyDown = (event) => {
         if (event.key === 'Enter') {
-            genres.filter(genre => {
+            const filteredGenres = genres.filter(genre => {
                 if (genre.name.toLowerCase().includes(event.target.value.toLowerCase())) {
-                    navigate(`/genres/${genre.id}`);
                     return true;
                 } 
                 return false;
             });
+            
+            if (filteredGenres.length > 0) {
+                navigate(`/genres/${filteredGenres[0].genreID}`);   
+            }
         }
     };
 
@@ -118,8 +108,8 @@ export function GenreList() {
             </div>
 
             <div>
-                {memoizedGenres.map(genre => (
-                    <Card key={genre.id} className="genre-card" 
+                {genres.map(genre => (
+                    <Card key={genre.genreID} className="genre-card" 
                                 onDoubleClick={() => handleCardDoubleClick(genre)}
                                 sx={{ marginBottom: '20px', padding: '15px' }}>
                         <CardContent>
@@ -133,7 +123,7 @@ export function GenreList() {
                         <CardActions>
                             <Button
                                 component={Link}
-                                to={`/genres/edit/${genre.id}`}
+                                to={`/genres/edit/${genre.genreID}`}
                                 size="small"
                                 startIcon={<EditOutlinedIcon />}
                             >

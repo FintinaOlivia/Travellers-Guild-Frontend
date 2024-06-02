@@ -1,11 +1,4 @@
 
-import { jsonAddCharacter, 
-  jsonAddListOfCharacters, 
-  jsonDeleteCharacter, 
-  jsonFetchCharacter, 
-  jsonFetchCharacters,
-   jsonFetchModifiedCharacters,
-   jsonUpdateCharacter } from '../LocalDB/LocalOperations';
 import { fetchGenre } from './GenreActions';
 // Add character
 export const ADD_CHARACTER_REQUEST = "ADD_CHARACTER_REQUEST";
@@ -37,6 +30,8 @@ export const SET_FORM_VALIDATION_ERROR = 'SET_FORM_VALIDATION_ERROR';
 
 export const SET_SELECTED_GENRE = 'SET_SELECTED_GENRE';
 
+export const SET_PAGE_NUMBER = 'SET_PAGE_NUMBER';
+
 // -------------------Utilities------------------
 
 // Define the base URL for the API
@@ -67,10 +62,9 @@ export const fetchCharacter = (id) => {
       const response = await fetch(`http://localhost:8082/characters/${id}`);
       var data = null;
       if (!response.ok) {
-        data = await jsonFetchCharacter();
-        // throw new Error('Failed to fetch character');
+        throw new Error('Failed to fetch character');
       }
-      data = await response.json() || jsonFetchCharacter(id);
+      data = await response.json();
 
       dispatch(fetchCharacterSuccess(data));
       
@@ -109,39 +103,16 @@ export const fetchCharacters = (page, pageSize = 10) => {
       const response = await fetch(`http://localhost:8082/characters?page=${integerPage}&pageSize=${integerPageSize}`);
       if (!response.ok) {
         throw new Error('Failed to fetch characters');
-        //const characters = await jsonFetchCharacters();
-        // data = characters;
       }
-        // throw new Error('Failed to fetch characters');
       
       data = await response.json();
       
       dispatch(fetchCharactersSuccess(data));
-      // jsonAddListOfCharacters(data);
     } catch (error) {
       dispatch(fetchCharactersFailure(error.message));
     }
   };
 };
-
-// export const fetchCharacters = () => {
-//   return async (dispatch) => {
-//     dispatch(fetchCharactersRequest());
-    
-//     try {
-//       const response = await fetch('http://localhost:8082/characters');
-//       if (!response.ok) {
-//         throw new Error('Failed to fetch characters');
-//       }
-//       const data = await response.json();
-//       dispatch(fetchCharactersSuccess(data));
-//     } catch (error) {
-//       dispatch(fetchCharactersFailure(error.message));
-//     }
-//   };
-// };
-
-
 
 // -------------------ADD CHARACTER ACTIONS-------------------
 
@@ -176,13 +147,11 @@ export const addCharacter = (character) => {
 
       var data = null;
       if (!response.ok) {
-        data = await jsonAddCharacter(character);
-        // throw new Error('Failed to add character, please try again later.');
+        throw new Error('Failed to add character, please try again later.');
       }
 
       data = await response.json();
       dispatch(addCharacterSuccess(data));
-      jsonAddCharacter(data);
     } catch (error) {
       dispatch(addCharacterFailure(error.message));
       dispatch(setFormValidationError(error.message));
@@ -222,14 +191,13 @@ export const updateCharacter = (id, updatedData) => {
 
     
       if (!response.ok) {
-        jsonUpdateCharacter(updatedData);
-        // throw new Error('Failed to edit character, please try again later.');
+        throw new Error('Failed to edit character, please try again later.');
       }
 
       dispatch(updateCharacterSuccess(id, updatedData));
-      jsonUpdateCharacter(updatedData);
       dispatch(fetchCharacter(id));
-      dispatch(fetchGenre(updatedData.genreID))
+      console.log("Genre id:", updatedData.genreID);
+      dispatch(fetchGenre(updatedData.genreID.toString()))
     } catch (error) {
       dispatch(updateCharacterFailure(error.message));
       dispatch(setFormValidationError(error.message));
@@ -263,12 +231,10 @@ export const deleteCharacter = (id) => {
       });
 
       if (!response.ok) {
-        // throw new Error('Failed to delete character');
-        jsonDeleteCharacter(id);
+        throw new Error('Failed to delete character');
       }
 
       dispatch(deleteCharacterSuccess(id));
-      jsonDeleteCharacter(id);
     } catch (error) {
       dispatch(deleteCharacterFailure(error.message));
     }
@@ -291,16 +257,21 @@ export const setSelectedGenre = (selectedGenre) => ({
 });
 
 // ------------------Sync with server-----------------------------
-export const syncCharacters = () => {
-  const modifiedCharacters = jsonFetchModifiedCharacters();
-  for(const character of modifiedCharacters) {
-    if(character.operation === 'added') {
-      addCharacter(character);
-    } else if(character.operation === 'updated') {
-      updateCharacter(character.id, character);
-    } else if(character.operation === 'deleted') {
-      deleteCharacter(character.id);
-    }
-  }
-    
-}
+// export const syncCharacters = () => {
+//   const modifiedCharacters = jsonFetchModifiedCharacters();
+//   for(const character of modifiedCharacters) {
+//     if(character.operation === 'added') {
+//       addCharacter(character);
+//     } else if(character.operation === 'updated') {
+//       updateCharacter(character.id, character);
+//     } else if(character.operation === 'deleted') {
+//       deleteCharacter(character.id);
+//     }
+//   }
+// }
+
+// ------------------Pagination-----------------------------
+export const setPageNumber = (pageNumber) => ({
+  type: SET_PAGE_NUMBER,
+  payload: pageNumber,
+});

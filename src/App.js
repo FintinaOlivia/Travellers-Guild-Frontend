@@ -23,8 +23,8 @@ import { GenreForm } from './Components/Genres/GenreForm';
 import { GenreEdit } from './Components/Genres/GenreEdit';
 
 import CssBaseline from '@mui/material/CssBaseline';
-import { fetchCharacters, syncCharacters } from './StateManagement/CharacterActions';
-import { deleteAllFromJsonServer } from './LocalDB/LocalOperations';
+import { fetchCharacters } from './StateManagement/CharacterActions';
+// import { deleteAllFromJsonServer } from './LocalDB/LocalOperations';
 
 export function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -83,7 +83,7 @@ export function App() {
         const response = await fetch('http://localhost:8082/characters'); 
         
         // const response = await dispatch(fetchCharacters());
-        
+
         if (response.error) {
           console.log('Server is down');
           dispatch(setServerDown(true));
@@ -92,7 +92,7 @@ export function App() {
           console.log('Server is up');
           dispatch(setServerDown(false));
           setIsWarningVisible(!isOnline); 
-          deleteAllFromJsonServer();
+          // deleteAllFromJsonServer();
         }
       } catch (error) {
         dispatch(setServerDown(true));
