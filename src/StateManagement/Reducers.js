@@ -2,12 +2,14 @@ import { combineReducers } from 'redux';
 import CharacterReducer from './CharacterReducer';
 import GenreReducer from './GenreReducer';
 import serverStatusReducer from './ServerStatusReducer';
+import AuthReducer from './AuthReducer';
 import { SET_SELECTED_GENRE } from './CharacterActions';
 
 export const rootReducer = combineReducers({
   characters: CharacterReducer,
   genres: GenreReducer,
-  serverStatus: serverStatusReducer
+  serverStatus: serverStatusReducer,
+  auth: AuthReducer
 });
 
 const initialState = {

@@ -1,5 +1,8 @@
 
 import { fetchGenre } from './GenreActions';
+import { store } from '../StateManagement/Store';
+
+
 // Add character
 export const ADD_CHARACTER_REQUEST = "ADD_CHARACTER_REQUEST";
 export const ADD_CHARACTER_SUCCESS = "ADD_CHARACTER_SUCCESS";
@@ -95,15 +98,20 @@ export const fetchCharacters = (page, pageSize = 10) => {
   }
   const integerPage = parseInt(page);
   const integerPageSize = parseInt(pageSize);
+
+  const token = store.getState().auth.token.accessToken;
+
   return async (dispatch) => {
     dispatch(fetchCharactersRequest());
-
+    
     var data = null;
     try {
-      const response = await fetch(`http://localhost:8082/characters?page=${integerPage}&pageSize=${integerPageSize}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch characters');
-      }
+      const response = await fetch(`http://localhost:8082/characters?page=${integerPage}&pageSize=${integerPageSize}`, {
+        headers: {
+          'Authorization': `${token}`, 
+          'Content-Type': 'application/json'
+        }
+      });
       
       data = await response.json();
       
@@ -140,6 +148,7 @@ export const addCharacter = (character) => {
       const response = await fetch('http://localhost:8082/characters', {
         method: 'POST',
         headers: {
+          'Authorization': `${store.getState().auth.token.accessToken}`, 
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(character)
@@ -184,6 +193,7 @@ export const updateCharacter = (id, updatedData) => {
       const response = await fetch(`http://localhost:8082/characters/${id}`, {
         method: 'PUT',
         headers: {
+          'Authorization': `${store.getState().auth.token.accessToken}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(updatedData)
@@ -227,7 +237,11 @@ export const deleteCharacter = (id) => {
       dispatch(deleteCharacterRequest(id));
 
       const response = await fetch(`http://localhost:8082/characters/${id}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+          'Authorization': `${store.getState().auth.token.accessToken}`,
+          'Content-Type': 'application/json'
+        }
       });
 
       if (!response.ok) {

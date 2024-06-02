@@ -11,7 +11,10 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 export function GenreList() {
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
     const [selectedGenreId, setSelectedGenreId] = useState(null);
+    const [isAdmin, setIsAdmin] = useState(false); 
+
     const genres = useSelector(state => state.genres.genres);
+    const roles = useSelector(state => state.auth.roles);
 
     const dispatch = useDispatch();
     const navigate = useNavigate();
@@ -46,6 +49,9 @@ export function GenreList() {
         };
     }, [loading, hasMore, dispatch, nrElementsPerPage]);
     
+    useEffect(() => {
+        setIsAdmin(roles.includes('ADMIN'));
+    }, [roles]);
 
     const handleDeleteConfirmation = (id) => {
         setSelectedGenreId(id);
@@ -85,9 +91,11 @@ export function GenreList() {
             <Typography variant="h4" align="center" gutterBottom>✨ List of Genres ✨</Typography>
 
             <div style={{ marginBottom: '20px', marginTop: '10px', display: 'flex', justifyContent: 'center' }}> 
-                <Button component={Link} to="/genres/add" variant="contained" color="primary" className="me-2 mb-3">
-                    Add
-                </Button>
+                {isAdmin && (
+                    <Button component={Link} to="/genres/add" variant="contained" color="primary" className="me-2 mb-3">
+                        Add
+                    </Button>
+                )}
                 <Button onClick={() => dispatch(fetchGenres(pageRef.current, nrElementsPerPage))} variant="outlined" color="primary" className="me-2  mb-3">
                     Refresh
                 </Button>
@@ -121,21 +129,25 @@ export function GenreList() {
                             <Typography>{genre.numberOfCharacters}<br /></Typography>
                         </CardContent>
                         <CardActions>
-                            <Button
-                                component={Link}
-                                to={`/genres/edit/${genre.genreID}`}
-                                size="small"
-                                startIcon={<EditOutlinedIcon />}
-                            >
-                                Edit
-                            </Button>
-                            <Button
-                                onClick={() => handleDeleteConfirmation(genre.id)}
-                                size="small"
-                                startIcon={<DeleteOutlinedIcon />}
-                            >
-                                Delete
-                            </Button>
+                            {isAdmin && (
+                                <>
+                                    <Button
+                                        component={Link}
+                                        to={`/genres/edit/${genre.genreID}`}
+                                        size="small"
+                                        startIcon={<EditOutlinedIcon />}
+                                    >
+                                        Edit
+                                    </Button>
+                                    <Button
+                                        onClick={() => handleDeleteConfirmation(genre.id)}
+                                        size="small"
+                                        startIcon={<DeleteOutlinedIcon />}
+                                    >
+                                        Delete
+                                    </Button>
+                                </>
+                            )}
                         </CardActions>
                     </Card>
                 ))}

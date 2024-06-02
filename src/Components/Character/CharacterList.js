@@ -15,12 +15,16 @@ export function CharacterList() {
     const [deleteConfirmationOpen, setDeleteConfirmationOpen] = useState(false);
     const [selectedCharacterId, setSelectedCharacterId] = useState(null);
     const [filteredCharacters, setFilteredCharacters] = useState([]);
+    const [isAdmin, setIsAdmin] = useState(false); 
+
 
     // eslint-disable-next-line no-unused-vars
     const [genreMap, setGenreMap] = useState({});
     const dispatch = useDispatch();
     const navigate = useNavigate();
     var characters = useSelector(state => state.characters.characters);
+    const roles = useSelector(state => state.auth.roles); 
+
     
     const loading = useSelector(state => state.characters.loading);
     const hasMore = useSelector(state => state.characters.hasMore);
@@ -64,6 +68,10 @@ export function CharacterList() {
         setDeleteConfirmationOpen(false);
     };
 
+    useEffect(() => {
+        setIsAdmin(roles.includes('ADMIN'));
+    }, [roles]);
+
 
     useEffect(() => {
         const handleScroll = () => {
@@ -92,7 +100,13 @@ export function CharacterList() {
         if (event.key === 'Shift') {
             (async () => {
                 try {
-                    const response = await fetch(`http://localhost:8082/characters/name/${event.target.value}`);
+                    const response = await fetch(`http://localhost:8082/characters/name/${event.target.value}`, {
+                        method: 'GET',
+                        headers: {
+                            'Authorization': `${store.getState().auth.token.accessToken}`,
+                            'Content-Type': 'application/json'
+                        }
+                    });
                     if(!response.ok) {
                         console.log("It's okay, it means it didn't find characters in the database!");
                     }
@@ -113,9 +127,11 @@ export function CharacterList() {
             <Typography variant="h4" align="center" gutterBottom>✨ List of Characters ✨</Typography>
 
             <div style={{ marginBottom: '20px', marginTop: '10px' , align: 'center', justifyContent: 'center' }}> 
-                <Button component={Link} to="/characters/add" variant="contained" color="primary" className="me-2 mb-3">
-                    Add
-                </Button>
+                {isAdmin && (
+                    <Button component={Link} to="/characters/add" variant="contained" color="primary" className="me-2 mb-3">
+                        Add
+                    </Button>
+                )}
                 <Button onClick={() => dispatch(fetchCharacters())} variant="outlined" color="primary" className="me-2  mb-3">
                     Refresh
                 </Button>
@@ -157,21 +173,25 @@ export function CharacterList() {
                             <Typography>{character.genreID}</Typography>
                         </CardContent>
                         <CardActions>
-                            <Button
-                                component={Link}
-                                to={`/characters/edit/${character.id}`}
-                                size="small"
-                                startIcon={<EditOutlinedIcon />}
-                            >
-                                Edit
-                            </Button>
-                            <Button
-                                onClick={() => handleDeleteConfirmation(character.id)}
-                                size="small"
-                                startIcon={<DeleteOutlinedIcon />}
-                            >
-                                Delete
-                            </Button>
+                        {isAdmin && (
+                                <>
+                                    <Button
+                                        component={Link}
+                                        to={`/characters/edit/${character.id}`}
+                                        size="small"
+                                        startIcon={<EditOutlinedIcon />}
+                                    >
+                                        Edit
+                                    </Button>
+                                    <Button
+                                        onClick={() => handleDeleteConfirmation(character.id)}
+                                        size="small"
+                                        startIcon={<DeleteOutlinedIcon />}
+                                    >
+                                        Delete
+                                    </Button>
+                                </>
+                            )}
                         </CardActions>
                     </Card>
                 ))}

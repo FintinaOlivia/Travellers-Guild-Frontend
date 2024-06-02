@@ -22,8 +22,13 @@ import { Genres, GenreDetails } from './Components/Genres/Genres';
 import { GenreForm } from './Components/Genres/GenreForm';
 import { GenreEdit } from './Components/Genres/GenreEdit';
 
+
+
 import CssBaseline from '@mui/material/CssBaseline';
 import { fetchCharacters } from './StateManagement/CharacterActions';
+
+import { Authorisation } from './Security/Authorisation';
+import { PrivateRoute } from './Security/Routing';
 // import { deleteAllFromJsonServer } from './LocalDB/LocalOperations';
 
 export function App() {
@@ -32,6 +37,8 @@ export function App() {
   // const [isServerDown, setIsServerDown] = useState(false);
 
   const isServerDown = useSelector(state => state.serverStatus.isServerDown);
+  const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
+  console.log('isAuthenticated:', isAuthenticated);
   const dispatch = useDispatch();
 
 
@@ -110,6 +117,10 @@ export function App() {
   }, [isOnline, dispatch]);
 
 
+  
+
+
+  
   return (
     <>
       <CssBaseline />
@@ -118,18 +129,50 @@ export function App() {
                                                                         : "Internet connection lost, we're trying to find it!"} />
           <Router>
             <Navbar />
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/characters/*" element={<Characters />} />
-              <Route path="/characters/:id" element={<CharacterDetails />} />
-              <Route path="/characters/add" element={<CharacterForm />} />
-              <Route path="/characters/edit/:id" element={<CharacterEdit />} />
-              <Route path="/characters/chart" element={<ChartPage />} />
-              <Route path='/genres/*' element={<Genres />} />
-              <Route path='/genres/:id' element={<GenreDetails />} />
-              <Route path='/genres/add' element={<GenreForm />} />
-              <Route path='/genres/edit/:id' element={<GenreEdit />} />
-            </Routes>
+                <Routes>
+                  <Route exact path="/" element={<Home/>}/>
+
+                  <Route exact path="/characters" element={<PrivateRoute/>}>
+                    <Route path="/characters" element={<Characters/>}/>
+                  </Route>
+
+                  <Route exact path="/characters/:id" element={<PrivateRoute/>}>
+                    <Route path="/characters/:id" element={<CharacterDetails/>}/>
+                  </Route>
+
+                  <Route exact path="/characters/add" element={<PrivateRoute/>}>
+                    <Route path="/characters/add" element={<CharacterForm/>}/>
+                  </Route>
+
+                  <Route exact path="/characters/edit/:id" element={<PrivateRoute/>}>
+                    <Route path="/characters/edit/:id" element={<CharacterEdit/>}/>
+                  </Route>
+
+                  <Route exact path="/characters/chart" element={<PrivateRoute/>}>
+                    <Route path="/characters/chart" element={<ChartPage/>}/>
+                  </Route>
+
+                  <Route exact path="/genres" element={<PrivateRoute/>}>
+                    <Route path="/genres" element={<Genres/>}/>
+                  </Route>
+
+                  <Route exact path="/genres/:id" element={<PrivateRoute/>}>
+                    <Route path="/genres/:id" element={<GenreDetails/>}/>
+                  </Route>
+
+                  <Route exact path="/genres/add" element={<PrivateRoute/>}>
+                    <Route path="/genres/add" element={<GenreForm/>}/>
+                  </Route>
+
+                  <Route exact path="/genres/edit/:id" element={<PrivateRoute/>}>
+                    <Route path="/genres/edit/:id" element={<GenreEdit/>}/>
+                  </Route>
+
+                  <Route path='/auth/login' element={<Authorisation action="login"/>} />
+                  <Route path='/auth/register' element={<Authorisation action="register"/>} />
+                </Routes>
+      
+          
             <Footer />
           </Router>
         </Provider>

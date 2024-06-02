@@ -1,4 +1,5 @@
 import { setFormValidationError } from "./CharacterActions";
+import { store } from '../StateManagement/Store';
 
 // Add genre
 export const ADD_GENRE_REQUEST = "ADD_GENRE_REQUEST";
@@ -47,7 +48,13 @@ export const fetchGenreRequest = () => ({
       dispatch(fetchGenreRequest());
   
       try {
-        const response = await fetch(`http://localhost:8082/genres/${id}`);
+        const response = await fetch(`http://localhost:8082/genres/${id}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `${store.getState().auth.token.accessToken}`, 
+            'Content-Type': 'application/json'
+          }
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch genre');
         }
@@ -87,7 +94,13 @@ export const fetchGenreRequest = () => ({
       dispatch(fetchGenresRequest());
       
       try {
-        const response = await fetch(`http://localhost:8082/genres?page=${integerPage}&pageSize=${integerPageSize}`);
+        const response = await fetch(`http://localhost:8082/genres?page=${integerPage}&pageSize=${integerPageSize}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `${store.getState().auth.token.accessToken}`, 
+            'Content-Type': 'application/json'
+          }
+        });
         if (!response.ok) {
           throw new Error('Failed to fetch genres');
         }
@@ -145,6 +158,7 @@ export const fetchGenreRequest = () => ({
         const response = await fetch('http://localhost:8082/genres', {
           method: 'POST',
           headers: {
+            'Authorization': `${store.getState().auth.token.accessToken}`, 
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(genre)
@@ -188,6 +202,7 @@ export const fetchGenreRequest = () => ({
         const response = await fetch(`http://localhost:8082/genres/${id}`, {
           method: 'PUT',
           headers: {
+            'Authorization': `${store.getState().auth.token.accessToken}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(updatedData)
@@ -228,7 +243,11 @@ export const fetchGenreRequest = () => ({
         dispatch(deleteGenreRequest(id));
   
         const response = await fetch(`http://localhost:8082/genres/${id}`, {
-          method: 'DELETE'
+          method: 'DELETE',
+          headers: {
+            'Authorization': `${store.getState().auth.token.accessToken}`, 
+            'Content-Type': 'application/json'
+          }
         });
   
         if (!response.ok) {
