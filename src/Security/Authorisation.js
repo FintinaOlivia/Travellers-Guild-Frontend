@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { store } from "../StateManagement/Store";
 
 import { useDispatch } from "react-redux";
 import { setAuthenticated, setUserRoles, setToken, setUser } from "../StateManagement/AuthActions";
@@ -15,13 +16,13 @@ export function Authorisation({ action }) {
     const handleFormSubmit = async (e) => {
         dispatch(setUserRoles([]));
         e.preventDefault();
-        if (action !== "login") {
+        if (action !== "login" && action !== "register") {
             console.error("Invalid action");
             return;
         }
 
         try {
-            const response = await fetch("http://localhost:8082/auth/login", {
+            const response = await fetch(`http://localhost:8082/auth/${action}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -30,19 +31,26 @@ export function Authorisation({ action }) {
             });
 
             if (response.ok) {
-                console.log("Login successful");
-                const token = await response.json();
-                dispatch(setToken(token));
-                const userData = decodeJwt(token);
-                console.log("User data:", userData);
-                const roles = userData.role;
-                console.log("Roles:", roles);
-                dispatch(setAuthenticated(true));
-                dispatch(setUserRoles(roles));
-                dispatch(setUser(userData.sub));
-                navigate("/");
+                console.log(`${action.charAt(0).toUpperCase() + action.slice(1)} successful`);
+                if (action === "login") {
+                    const token = await response.json();
+                    dispatch(setToken(token));
+                    const userData = decodeJwt(token);
+                    const roles = userData.role;
+    
+                    console.log("Username:", userData.sub);
+    
+                    dispatch(setAuthenticated(true));
+                    dispatch(setUserRoles(roles));
+                    dispatch(setUser(userData.sub));
+    
+                    console.log(store.getState().auth.username);
+                    navigate("/");
+                } else { 
+                    navigate("/auth/login");
+                }
             } else {
-                console.log("Login failed");
+                console.log(`${action.charAt(0).toUpperCase() + action.slice(1)} failed`);
                 console.error("Error:", response.statusText);
             }
         } catch (error) {
@@ -56,7 +64,7 @@ export function Authorisation({ action }) {
                 <div className="col-md-6">
                     <div className="card">
                         <div className="card-body">
-                            <h1 className="card-title text-center mb-4">Login</h1>
+                            <h1 className="card-title text-center mb-4">{action === 'login' ? 'Login' : 'Register'}</h1>
                             <form onSubmit={handleFormSubmit}>
                                 <div className="mb-3">
                                     <label htmlFor="username" className="form-label">Username</label>
@@ -66,11 +74,15 @@ export function Authorisation({ action }) {
                                     <label htmlFor="password" className="form-label">Password</label>
                                     <input type="password" className="form-control" id="password" value={password} onChange={(e) => setPassword(e.target.value)} />
                                 </div>
-                                <button type="submit" className="btn btn-primary w-100">Login</button>
+                                <button type="submit" className="btn btn-primary w-100">{action === 'login' ? 'Login' : 'Register'}</button>
                             </form>
                         </div>
                         <div className="card-footer text-center">
-                            <p className="mb-0">New here? <Link to="/auth/register">Let's get you started!</Link></p>
+                            <p className="mb-0">{action === 'login' ? "New here? " : "Already have an account? "}
+                                <Link to={action === 'login' ? "/auth/register" : "/auth/login"}>
+                                    {action === 'login' ? "Let's get you started!" : "Login here."}
+                                </Link>
+                            </p>
                         </div>
                     </div>
                 </div>

@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { addGenre } from "../../StateManagement/GenreActions";
 import { setFormValidationError } from "../../StateManagement/CharacterActions";
 import { InputField, ValidationErrorAlert } from "../Character/CharacterEdit";
+import { store } from "../../StateManagement/Store";
 
 export function GenreForm() {
   const styles = {
@@ -19,12 +20,14 @@ export function GenreForm() {
   const [formData, setFormData] = useState({
     name: "",
     typicalTraits: "",
-    description: ""
+    description: "",
+    adderUsername: ""
   });
 
   const handleSubmit = (event) => {
     event.preventDefault();
     const genre = { ...formData };
+    genre.adderUsername = store.getState().auth.username;
 
     if (!Object.values(genre).every(value => value !== "")) {
       dispatch(setFormValidationError("Please fill in all the fields!"));

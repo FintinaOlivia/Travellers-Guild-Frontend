@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setAuthenticated, setUserRoles, setToken } from "../StateManagement/AuthActions";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 import { store } from '../StateManagement/Store';
 
@@ -62,6 +63,9 @@ export function Navbar() {
                     </ul>
                     :
                     <ul className="navbar-nav ml-auto">
+                        <li className="nav-item">
+                            <Link className="nav-link" to="/profile"><AccountCircleIcon sx={{ fontSize: 30 }} /></Link>
+                        </li>
                         <li className="nav-item">
                             <Link className="nav-link" onClick={handleLogout}>Logout</Link>
                         </li>

@@ -14,6 +14,6 @@ export const setToken = (token) => ({
   });
 
 export const setUser = (username) => ({
-    type: 'SET_USERNAME',
+    type: 'SET_USER',
     username,
   });

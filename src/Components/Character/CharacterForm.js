@@ -7,6 +7,7 @@ import GenreDropdown from "../Genres/GenreDropdown";
 import { useDispatch, useSelector } from "react-redux";
 import { addCharacter, setFormValidationError} from "../../StateManagement/CharacterActions";
 import { fetchGenres } from "../../StateManagement/GenreActions";
+import { store } from "../../StateManagement/Store";
 
 
 export function CharacterForm(props) {
@@ -24,7 +25,8 @@ export function CharacterForm(props) {
                                               iconicLines: "", 
                                               creator: "", 
                                               genreID: "",
-                                              description: "" 
+                                              description: "" ,
+                                              adderUsername: ""
                                             });
   const formValidationError = useSelector(state => state.characters.formValidationError);
 
@@ -52,7 +54,11 @@ export function CharacterForm(props) {
       return;
     }else{
       dispatch(setFormValidationError("Character added successfully!"));
+      character.adderUsername = store.getState().auth.username;
       dispatch(addCharacter(character));
+
+      console.log(character);
+          
       setFormData({ characterName: "", age: "", iconicLines: "", creator: "", description: "" });
     }
   };
@@ -111,13 +117,6 @@ export function CharacterForm(props) {
                       onChange={handleChange}
                       placeholder="Enter creator...."
                     />
-                    {/* <InputField
-                      label="Genre"
-                      name="genreID"
-                      value={formData.genreID}
-                      onChange={handleChange}
-                      placeholder="Enter genre id...."
-                    /> */}
                     <GenreDropdown
                       genres={genres}
                       value={formData.genreID}

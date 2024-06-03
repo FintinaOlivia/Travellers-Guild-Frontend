@@ -29,16 +29,16 @@ import { fetchCharacters } from './StateManagement/CharacterActions';
 
 import { Authorisation } from './Security/Authorisation';
 import { PrivateRoute } from './Security/Routing';
+import { Profile } from './LandingPage/ProfilePage';
 // import { deleteAllFromJsonServer } from './LocalDB/LocalOperations';
 
 export function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [isWarningVisible, setIsWarningVisible] = useState(!isOnline);
-  // const [isServerDown, setIsServerDown] = useState(false);
 
   const isServerDown = useSelector(state => state.serverStatus.isServerDown);
   const isAuthenticated = useSelector(state => state.auth.isAuthenticated);
-  console.log('isAuthenticated:', isAuthenticated);
+  const username = useSelector(state => state.auth.username);
   const dispatch = useDispatch();
 
 
@@ -61,9 +61,6 @@ export function App() {
         console.error('Error connecting to WebSocket:', error);
     });
 }, [dispatch]);
-
-
-
 
 
   useEffect(() => {
@@ -133,7 +130,7 @@ export function App() {
                   <Route exact path="/" element={<Home/>}/>
 
                   <Route exact path="/characters" element={<PrivateRoute/>}>
-                    <Route path="/characters" element={<Characters/>}/>
+                    <Route path="/characters" element={<Characters />}/>
                   </Route>
 
                   <Route exact path="/characters/:id" element={<PrivateRoute/>}>
@@ -166,6 +163,10 @@ export function App() {
 
                   <Route exact path="/genres/edit/:id" element={<PrivateRoute/>}>
                     <Route path="/genres/edit/:id" element={<GenreEdit/>}/>
+                  </Route>
+
+                  <Route exact path="/profile" element={<PrivateRoute/>}>
+                    <Route path="/profile" element={<Profile/>}/>
                   </Route>
 
                   <Route path='/auth/login' element={<Authorisation action="login"/>} />
